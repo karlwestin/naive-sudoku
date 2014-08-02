@@ -44,8 +44,8 @@
         found (some true? possible)]
 
       (if found
-          [true (update-board number board possible)]
-          [false board])))
+          (update-board number board possible)
+          board)))
 
 (defn finished? [board]
   (not-any? #(= 0 %) board))
@@ -56,11 +56,14 @@
 
 (defn solve [board]
   (let [tries (range 1 10)
-        [found new-board] (reduce (fn [[found board] number]
-                            (let [[new-found new-board] (fill-in-board number board)]
-                              [(or found new-found) new-board])) [false board] tries)]
+        new-board (reduce (fn [board number]
+                            (let [new-board (fill-in-board number board)]
+                                  new-board)) board tries)
+        ;; If the new and old board are the same
+        ;; we haven't been able to fill anything in
+        not-found (= new-board board)]
       (cond
-        (not found) (do (println "Could not solve!") [false new-board])
+        not-found (do (println "Could not solve!") [false new-board])
         (finished? new-board) (do (println "Yay! We won!") [true new-board])
         :else (solve new-board))))
 
